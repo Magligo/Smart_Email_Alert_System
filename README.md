@@ -1,78 +1,74 @@
-# Smart Email Meeting Alert System
+# MailSense: Intelligent Meeting Alert System
 
 ## Overview
 
-Smart Email Meeting Alert System is a Python-based automation project that reads emails from Gmail, detects meeting-related content, extracts date and time information, and sends desktop notifications for upcoming meetings.
+MailSense is a Python-based alert system that reads Gmail messages, detects meeting-related content, understands human-friendly time expressions, and issues desktop notifications for upcoming meetings.
 
-The system combines Gmail API integration, regex-based parsing, and rule-based natural language handling to understand both explicit and human-friendly meeting phrases such as `tomorrow`, `next Friday`, `this evening`, and `in 2 hours`. It is designed to run continuously in the background and help users avoid missing important meetings buried in email threads.
+The system uses Gmail API integration with OAuth 2.0, structured email parsing, and rule-based time interpretation to identify events such as meetings, calls, and scheduling requests. MailSense is designed to filter past meetings, prioritize upcoming events, and deliver timely reminders without requiring automated setup scripts.
 
 ## Features
 
-- Gmail API integration with OAuth 2.0 authentication
-- Reads and processes incoming emails from Gmail
-- Parses email content into structured data
-- Detects meeting-related messages using regex and NLP-style rules
-- Extracts time formats such as `6 PM` and `6:30pm`
-- Understands natural language expressions such as:
-  - `today`
-  - `tomorrow`
-  - weekdays like `Monday` to `Sunday`
+- Gmail API integration using OAuth 2.0
+- Email parsing for meeting-related content
+- Meeting detection from email body, subject, or invitation text
+- Natural language time understanding for:
+  - `6 PM`, `6:30 PM`
+  - `today`, `tomorrow`
+  - weekdays (`Monday`, `Friday`, etc.)
   - `next Friday`
-  - `this evening`
-  - `in 2 hours`
-- Smart scheduling logic for reminders
-- Skips past meetings automatically
-- Sends alerts only for upcoming meetings
-- Triggers immediate notification when a meeting is very close
-- Prevents duplicate notifications for the same meeting
-- Supports background execution on Windows using Task Scheduler
-- Includes logging support for monitoring and debugging
+  - relative expressions like `in 10 minutes`, `in 2 hours`
+- Smart scheduling logic that:
+  - skips meetings that have already passed
+  - only triggers alerts for upcoming meetings
+  - issues immediate notifications for events that are about to start
+- Desktop notifications through `plyer`
+- Secure credentials management with `credentials.json`
 
 ## Tech Stack
 
 - Python
 - Gmail API
 - OAuth 2.0
-- Regex
-- Rule-based NLP logic
-- `datetime`
-- `threading`
-- Plyer
+- `requirements.txt` dependency management
+- `plyer` for desktop notifications
+- `datetime` for schedule calculations
+- Rule-based parsing logic for natural language
 
 ## Project Structure
 
 ```text
-Smart Email-Alert-System/
-|
-|-- main.py                  # Main entry point for continuous email monitoring
-|-- email_reader.py          # Gmail API integration and email fetching
-|-- parser.py                # Email parsing and structured extraction
-|-- meeting_detector.py      # Meeting detection using regex and language rules
-|-- scheduler.py             # Reminder scheduling logic
-|-- notifier.py              # Desktop notification handling
-|-- priority_classifier.py   # Priority classification for detected meetings
-|-- credentials.json         # Gmail API OAuth client credentials
-|-- token.json               # Stored OAuth access token
-|-- requirements.txt         # Python dependencies
-|-- run_email_alert.bat      # Background launcher for Windows
-|-- install_service.bat      # Optional service install helper
-|-- WINDOWS_SETUP.md         # Windows background execution guide
+MailSense/
+|-- main.py
+|-- email_reader.py
+|-- parser.py
+|-- meeting_detector.py
+|-- scheduler.py
+|-- notifier.py
+|-- priority_classifier.py
+|-- credentials.json       # Gmail API OAuth client credentials
+|-- token.json             # Generated OAuth token after first authorization
+|-- requirements.txt       # Python dependencies
+|-- WINDOWS_SETUP.md       # Optional Windows guidance for background execution
 ```
 
-## Setup Instructions
+## Installation & Setup (VERY IMPORTANT)
 
-### 1. Clone the Repository
+The project does not rely on `setup.bat` or `run.bat`. Environment setup must be completed manually.
+
+1. Clone the repository
 
 ```bash
 git clone <your-repository-url>
-cd Smart Email-Alert-System
+cd Smart_Email_Alert_System
 ```
 
-### 2. Create and Activate a Virtual Environment
+2. Create a virtual environment
 
 ```bash
 python -m venv venv
 ```
+
+3. Activate the virtual environment
 
 Windows:
 
@@ -80,82 +76,76 @@ Windows:
 venv\Scripts\activate
 ```
 
-### 3. Install Dependencies
+4. Install dependencies
 
 ```bash
-pip install -r requirements.txt
-pip install plyer
+python -m pip install -r requirements.txt
 ```
 
-### 4. Set Up Gmail API Access
+5. Add `credentials.json`
 
-1. Open Google Cloud Console
-2. Create a project or select an existing one
-3. Enable the Gmail API
-4. Create OAuth 2.0 credentials
-5. Download the credentials file
-6. Save it in the project root as `credentials.json`
+- Open the Google Cloud Console
+- Create or select a project
+- Enable the Gmail API
+- Create OAuth 2.0 client credentials
+- Download the JSON credentials file
+- Save the file in the project root as `credentials.json`
 
-### 5. Authenticate the Application
-
-Run the project once to complete OAuth authorization and generate `token.json`.
+6. First run
 
 ```bash
 python main.py
 ```
 
-### 6. Run the Application
+- The first run opens a browser for Gmail OAuth authentication
+- After authorization, the app stores authentication tokens in `token.json`
+- Keep `credentials.json` in the project root for future runs
+
+## Usage
+
+Run the project from the project folder after activating the virtual environment:
 
 ```bash
 python main.py
 ```
-
-### 7. Run in Background on Windows
-
-To run the system without opening a terminal each time, use the provided batch launcher with Windows Task Scheduler.
-
-```bash
-run_email_alert.bat
-```
-
-For scheduled startup, follow the steps in `WINDOWS_SETUP.md`.
 
 ## How It Works
 
-1. The system connects to Gmail using the Gmail API.
-2. It fetches email messages at regular intervals.
-3. Each email is parsed into a structured format.
-4. The detector checks whether the email contains meeting-related content.
-5. Date and time information is extracted using regex and rule-based logic.
-6. Natural language time expressions are converted into actual upcoming datetimes.
-7. The scheduler decides whether to:
-   - ignore past meetings
-   - notify immediately
-   - schedule a reminder shortly before the meeting
-8. Duplicate alerts are avoided using internal tracking.
+1. MailSense connects to Gmail using the Gmail API and OAuth 2.0.
+2. It fetches messages from the inbox at regular intervals.
+3. Email content is parsed to extract structured text and meeting-related cues.
+4. Meeting detection logic identifies event phrases and scheduling language.
+5. Time expressions are converted into concrete datetimes.
+6. The scheduler filters out past meetings and selects only upcoming events.
+7. Notifications are generated for meetings that need attention, including immediate alerts for near-term events.
 
-## Example Use Cases
+## Troubleshooting
 
-- Receive a desktop alert when an email says: `Meeting tomorrow at 6 PM`
-- Detect a reminder from a message like: `Let's connect next Friday evening`
-- Trigger an immediate alert for: `Call in 2 hours`
-- Ignore old meeting emails for events that already passed
-- Run continuously in the background to monitor work emails automatically
+- `ModuleNotFoundError: plyer`
+  - Ensure the virtual environment is active.
+  - Install dependencies with `python -m pip install -r requirements.txt`.
+
+- Missing `credentials.json`
+  - Download OAuth credentials from Google Cloud Console.
+  - Place `credentials.json` in the project root.
+
+- Notifications not showing
+  - Confirm the desktop notification service is enabled on your operating system.
+  - Verify `plyer` supports your Windows notification environment.
+
+- Past meetings are skipped
+  - This is intentional. MailSense only schedules alerts for upcoming events.
+  - If a meeting time is already in the past, it will not generate a notification.
 
 ## Future Improvements
 
-- Support Outlook and IMAP in addition to Gmail
-- Add calendar integration for automatic event creation
-- Improve NLP with ML-based intent detection
-- Store processed meetings in a database
-- Add a web dashboard for monitoring alerts and logs
-- Support email summarization and smart priority ranking
-- Add cross-platform background execution support
+- Add IMAP or Outlook support in addition to Gmail
+- Integrate with calendar APIs to create events automatically
+- Improve natural language understanding with machine learning
+- Add a lightweight web dashboard for active meeting alerts
+- Persist detected meetings in a database for audit and history
+- Expand cross-platform background execution support
 
-## Resume-Ready Highlights
+## Summary
 
-- Built a Python automation system for Gmail-based meeting detection and alerting
-- Implemented regex and rule-based NLP for natural language time understanding
-- Integrated OAuth 2.0 and Gmail API for secure email access
-- Designed smart scheduling logic with duplicate prevention and upcoming-event filtering
-- Enabled background execution on Windows for real-world usability
+MailSense is a practical Python project for intelligent meeting detection from Gmail messages. It combines OAuth-secured email access, robust parsing, and smart scheduling to help users stay on top of meetings without relying on automated setup scripts.
