@@ -1,4 +1,4 @@
-# MailSense: Intelligent Meeting Alert System
+# MailSense – Intelligent Meeting Alert System
 
 ## Overview
 
